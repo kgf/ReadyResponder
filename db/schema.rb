@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171030083331) do
+ActiveRecord::Schema.define(version: 20180228012641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,12 @@ ActiveRecord::Schema.define(version: 20171030083331) do
     t.string   "loggable_type"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "assignments", force: :cascade do |t|
@@ -158,7 +164,7 @@ ActiveRecord::Schema.define(version: 20171030083331) do
     t.string   "description"
     t.datetime "start_time"
     t.datetime "end_time"
-    t.decimal  "duration", precision: 7, scale: 2
+    t.integer  "duration"
     t.string   "category"
     t.string   "status"
     t.datetime "created_at"
@@ -329,7 +335,10 @@ ActiveRecord::Schema.define(version: 20171030083331) do
     t.string   "subject"
     t.text     "body"
     t.string   "purpose"
+    t.string   "event_statuses"
+    t.string   "event_assigned"
     t.string   "id_code"
+    t.text     "individuals"
   end
 
   add_index "notifications", ["event_id"], name: "index_notifications_on_event_id", using: :btree

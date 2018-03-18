@@ -1,16 +1,16 @@
 class Notification < ActiveRecord::Base
-#  serialize :departments, Array
+  serialize :individuals
   has_paper_trail
   include Loggable
 
   has_and_belongs_to_many :departments
   belongs_to :event
   has_many :recipients
-  has_many :people, :through => :recipients
+  has_many :people, through: :recipients
 
   STATUS_STATES = {
     'New' => ['Scheduled', 'Active'],
-    'Scheduled' => ['Active', "Cancelled"],
+    'Scheduled' => ['Active', 'Cancelled'],
     'Active' => ['Cancelled'],
     'In-Progress' => ['Cancelled'],
     'Cancelled' => [],
@@ -33,23 +33,26 @@ class Notification < ActiveRecord::Base
   end
 
   def start_time
-    return nil if self.event.nil?
-    self.event.start_time
+    return nil if event.nil?
+    event.start_time
   end
 
   def end_time
-    return nil if self.event.nil?
-    self.event.end_time
+    return nil if event.nil?
+    event.end_time
   end
 
   def activate!
-    self.start_time = Time.zone.now
-    self.status = "In-Progress"
+    start_time = Time.zone.now
+    status = 'In-Progress'
     self.save!
-    Person.active.where(department: self.departments).each do |p|
-      if (self.purpose == "FYI" ||
-          self.purpose == "Acknowledgment" ||
-          self.purpose == "Availability" && !p.responded?(self))
+    from_dept = Person.active.where(department: departments)
+    indies = Person.active.where(id: self.individuals)
+    recievers = from_dept + indies
+    recievers.each do |p|
+      if (purpose == 'FYI' ||
+          purpose == 'Acknowledgment' ||
+          purpose == 'Availability' && !p.responded?(self)
         recipients.create(person: p)
       end
     end
@@ -57,7 +60,7 @@ class Notification < ActiveRecord::Base
   end
 
   def notify!
-    if channels.include? "Text"
+    if channels.include? 'Text'
       twilio = Message::SendNotificationTextMessage.new
       recipients.each do |r|
         r.notify! twilio
@@ -65,13 +68,14 @@ class Notification < ActiveRecord::Base
     end
   end
 
-private
+  private
 
   def notification_has_at_least_one_recipient
     # As we add more ways to choose recipients,
     # we'll need to expand this validator
-    if departments.blank?
+    if departments.blank? && individuals.blank?
       errors[:departments] << "All recipients can't be blank"
+      errors[:individuals] << "All recipients can't be blank"
     end
   end
 

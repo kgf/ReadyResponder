@@ -6,6 +6,7 @@
     <tr>
       <th>Subject</th>
       <th>Status</th>
+      <th>Date</th>
       <th>Event</th>
       <th>Departments</th>
       <th>Recipients</th>
@@ -20,6 +21,7 @@
       <tr>
         <td><%= link_to truncate(notification.subject, length: 60), notification_path(notification) %></td>
         <td><%= notification.status %></td>
+        <td><%= notification.created_at %></td>
         <td><%= notification.event ? (link_to notification.event.title, notification.event) : 'None' %></td>
         <td><%= notification.departments.map { |d| d.shortname }.join(", ") %></td>
         <td><%= notification.recipients.count %></td>

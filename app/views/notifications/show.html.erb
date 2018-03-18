@@ -55,6 +55,29 @@
   <strong>Channels:</strong>
   <%= @notification.channels %>
 </p>
+<table id="generic-people" class="generic_datatable table table-striped table-bordered">
+  <caption><h4><center>Chosen Indivduals</center></h4></caption>
+  <thead>
+   <tr>
+     <th>Title</th>
+     <th>Name</th>
+     <th>Phone</th>
+     <th>Dept</th>
+   </tr>
+  </thead>
+  <tbody>
+   <% @individuals.each do |person| %>
+     <tr <%== row_class if local_assigns[:row_class] %>>
+       <td><%= person.shortrank %></td>
+       <td><%= link_to person.fullname, person_path(person) %></td>
+       <td><%= number_to_phone(person.phone) %></td>
+       <td><%= "#{person.dept_shortname} #{person.division1}" %></td>
+     </tr>
+   <% end %>
+  </tbody>
+</table>
+<hr/>
+
 <%= render(partial: 'recipients/recipients_table',
            locals: { recipients: @notification.recipients}) %>
 <p>
